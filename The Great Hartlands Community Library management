@@ -1,0 +1,245 @@
+import os
+import platform
+
+# Initial book list#
+listBooks = [
+    {"title": "Amazing Paintings", "author": "Jasmine Nazam", "Book ISBN": "1234", "Copies": 3},
+    {"title": "Great Cakes", "author": "Aisha Khan", "Book ISBN": "3456", "Copies": 7},
+    {"title": "Great Places To Visit", "author": "Ailene Smith", "Book ISBN": "6789", "Copies": 4},
+    {"title": "Sweet Desserts Of India", "author": "Tazmin Shah", "Book ISBN": "7384", "Copies": 6},
+    {"title": "The Tales Of The Unknown", "author": "Simon Alan", "Book ISBN": "4910", "Copies": 9}
+]
+
+# Sample credentials
+staff_details = {"jas": "jas", "ashi": "ashi", "sona": "sona", "rosh": "rosh", "brian": "brian"}
+user_details = {"victor": "victor", "david": "david", "lee": "lee", "yun": "yun"}
+
+# Login function
+def login(role):
+    print(f"Enter your {role} username:")
+    username = input().strip()
+    password = input(f"Enter your {role} password:").strip()
+
+    if role == "staff" and username in staff_details and staff_details[username] == password:
+        return True
+    elif role == "user" and username in user_details and user_details[username] == password:
+        return True
+    else:
+        print("Invalid username or password")
+        return False
+
+# Register function
+def register(role):
+    print(f"Registering new {role}:")
+    username = input("Enter a username: ").strip()
+    if role == "staff":
+        if username in staff_details:
+            print("Username taken.")
+            return
+        password = input("Enter a password: ").strip()
+        staff_details[username] = password
+    elif role == "user":
+        if username in user_details:
+            print("Username taken.")
+            return
+        password = input("Enter a password: ").strip()
+        user_details[username] = password
+    print(f"{role.capitalize()} registered successfully!")
+
+# Main library management function
+def manageLibrary():
+    while True:
+        print(""" 
+  ------------------------------------------------------------------
+ |==================================================================| 
+ |======== Welcome To The Great Hartland Community Library =========|
+ |==================================================================|
+  ------------------------------------------------------------------
+
+Enter 1 : Staff Login 
+Enter 2 : User Login
+Enter 3 : Register
+Enter 4 : Exit
+        """)
+        try:
+            userInput = int(input("Please select an option: ").strip())
+        except ValueError:
+            print("\nOOPS! That's Not A Number. Please enter the right number!")
+            continue
+
+        if userInput == 1:
+            if login("staff"):
+                staff_menu()
+            else:
+                continue
+        elif userInput == 2:
+            if login("user"):
+                user_menu()
+            else:
+                continue
+        elif userInput == 3:
+            print("Register as\n1. Staff\n2. User")
+            try:
+                reg_option = int(input().strip())
+                if reg_option == 1:
+                    register("staff")
+                elif reg_option == 2:
+                    register("user")
+                else:
+                    print("Invalid option!")
+            except ValueError:
+                print("Invalid input, please enter 1 or 2.")
+        elif userInput == 4:
+            print("Exiting Library System. BYE PLEASE VISIT AGAIN!")
+            break
+        else:
+            print("Invalid option!")
+
+# Staff menu function
+def staff_menu():
+    while True:
+        print("\nStaff Menu:")
+        print("1. Add a book")
+        print("2. Delete book")
+        print("3. Search book")
+        print("4. Return book")
+        print("5. Exit to main menu")
+        try:
+            staff_option = int(input("Enter a choice: ").strip())
+            if staff_option == 1:
+                add_book()
+            elif staff_option == 2:
+                delete_book()
+            elif staff_option == 3:
+                search_book()
+            elif staff_option == 4:
+                return_book()
+            elif staff_option == 5:
+                break
+            else:
+                print("Invalid choice, please enter a valid option.")
+        except ValueError:
+            print("Invalid input, please enter a number between 1 and 5.")
+
+# User menu function
+def user_menu():
+    while True:
+        print("\nUser Menu")
+        print("1. Borrow book")
+        print("2. Return book")
+        print("3. Exit to main menu")
+        try:
+            user_option = int(input("Enter a choice: ").strip())
+            if user_option == 1:
+                borrow_book()
+            elif user_option == 2:
+                return_book()
+            elif user_option == 3:
+                break
+            else:
+                print("Invalid choice, please enter a valid option.")
+        except ValueError:
+            print("Invalid input, please enter a number between 1 and 3.")
+
+# Function to add a book
+def add_book():
+    print("Enter the title of book:")
+    title = input().strip()
+    print("Enter author of book:")
+    author = input().strip()
+    print("Enter ISBN of book:")
+    isbn = input().strip()
+    print("Enter number of copies of book:")
+    try:
+        copies = int(input().strip())
+    except ValueError:
+        print("Invalid input for copies. Please enter a number.")
+        return
+
+    if any(book["Book ISBN"] == isbn for book in listBooks):
+        print(f"\nThis book with ISBN {isbn} already exists in library.")
+    else:
+        listBooks.append({"title": title, "author": author, "Book ISBN": isbn, "Copies": copies})
+        print("\n>>> New book added successfully\n")
+        for book in listBooks:
+            print("Title: {}, Author: {}, ISBN: {}, copies available: {}".format(book["title"], book["author"], book["Book ISBN"], book["Copies"]))
+
+# Function to delete a book
+def delete_book():
+    print("Enter Title of book to delete:")
+    delete_title = input().strip()
+    print("Enter Author of book to delete:")
+    delete_author = input().strip()
+
+    found = False
+    for book in listBooks:
+        if book["title"] == delete_title and book["author"] == delete_author:
+            listBooks.remove(book)
+            print("Book removed/deleted successfully!")
+            found = True
+            break
+    if not found:
+        print("No book found with title '{}' and author '{}'.".format(delete_title, delete_author))
+
+# Function to search a book
+def search_book():
+    print("Enter Title or Author to search:")
+    search_detail_of = input().lower().strip()
+
+    found = False
+    for book in listBooks:
+        if search_detail_of in book["title"].lower() or search_detail_of in book["author"].lower():
+            print("Book found - Title: {}, Author: {}, ISBN: {}, Copies available: {}".format(book["title"], book["author"], book["Book ISBN"], book["Copies"]))
+            found = True
+
+    if not found:
+        print("No book found with that Title or Author.")
+
+# Function to borrow a book
+def borrow_book():
+    print("Enter Title of Book you would like to borrow:")
+    title = input().strip()
+    print("Author of book:")
+    author = input().strip()
+    name = input("Enter your full name: ").strip()
+
+    for book in listBooks:
+        if book["title"] == title and book["author"] == author:
+            if book["Copies"] > 0:
+                book["Copies"] -= 1
+                print(f"{name} has borrowed the book '{title}'.")
+                return
+            else:
+                print("No copies are available currently to borrow, try again later.")
+                return
+    print("Book not found/unavailable.")
+
+# Function to return a book
+def return_book():
+    print("Enter title of book to return:")
+    title = input().strip()
+    print("Enter Author of book:")
+    author = input().strip()
+
+    for book in listBooks:
+        if book["title"] == title and book["author"] == author:
+            book["Copies"] += 1
+            print(f"Book '{title}' by {author} has been returned.")
+            return
+    print("Sorry But This book does not belong to this library.")
+
+# Function to run the library management system again
+def RunAgain():
+    run_again = input("\nDo you want to continue managing around Hartland Library (yes/no)?: ").lower().strip()
+    if run_again == 'yes':
+        if platform.system() == "Windows":
+            os.system('cls')
+        else:
+            os.system('clear')
+        manageLibrary()
+    else:
+        print("Exiting The Great Hartland Community Library BYE PLEASE VISIT AGAIN!")
+
+if __name__ == "__main__":
+    manageLibrary()
+    RunAgain()
